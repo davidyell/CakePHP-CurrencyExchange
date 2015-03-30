@@ -81,6 +81,6 @@ class CurrencyHelper extends AppHelper {
  * @return array
  */
 	protected function getRates() {
-        return Cache::read('exchangeRates', 'ratesCache');
+        return Cache::read('exchangeRateData', 'CurrencyExchange.ratesCache');
 	}
 }

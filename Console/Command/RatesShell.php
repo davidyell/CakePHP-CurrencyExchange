@@ -54,9 +54,12 @@ class RatesShell extends AppShell {
             $rates = (array)$json;
 
             if (is_array($rates) && !empty($rates)) {
-                Cache::write('exchangeRateData', $rates, 'ratesCache');
-                $this->out(__("Exchange rate cache data updated."));
-                $this->out(__("New timestamp is `" . date('d M Y H:i:s', (int)$rates['DateTime']) . "`"));
+                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange.ratesCache')) {
+                    $this->out(__("Exchange rate cache data updated."));
+                    $this->out(__("New timestamp is `" . date('d M Y H:i:s', (int)$rates['DateTime']) . "`"));
+                } else {
+                    $this->out(__("<error>Cache could not be updated.</error>"));
+                }
             }
         } else {
             $this->out(__("<error>Response received `{$response->code}`</error>"));

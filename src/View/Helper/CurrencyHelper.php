@@ -26,12 +26,14 @@ class CurrencyHelper extends Helper
      * @var array $settings Default configuration
      */
     public $_defaultConfig = [
-        'sourceCurrency' => 'USD',
-        'targetCurrency' => 'GBP'
+        'sourceCurrency' => 'USD'
     ];
 
     /**
      * Display the price in configured currency
+     *
+     * Due to the free API not allowing changes to the source currency, non-USD source currencies are converted to USD
+     * and then to the target currency.
      *
      * @param int $value The monetary amount
      * @param string $currencyCode A three letter currency code list of codes, http://en.wikipedia.org/wiki/ISO_4217#Active_codes
@@ -44,17 +46,36 @@ class CurrencyHelper extends Helper
             throw new InvalidArgumentException('Please pass a valid three letter currency code, such as GBP or USD.');
         }
 
-        $rates = Cache::read('exchangeRateData', 'CurrencyExchange_ratesCache');
+        $rates = $this->_getRates();
         if ($rates === false) {
             return;
         }
         
-        if ($currencyCode === $this->settings['targetCurrency']) {
+        if ($currencyCode === $this->config('sourceCurrency')) {
             return;
         }
 
-        $amount = $value / $rates['quotes']->{$this->config('sourceCurrency') . $currencyCode};
-        
-        return $this->Number->currency($amount, $this->config('targetCurrency'));
+        if ($this->config('sourceCurrency') !== 'USD') {
+            $usdValue = $value / $rates['quotes']['USD' . $this->config('sourceCurrency')];
+            if ($currencyCode === 'USD') {
+                $amount = $usdValue;
+            } else {
+                $amount = $usdValue * $rates['quotes']['USD' . $currencyCode];
+            }
+        } else {
+            $amount = $value * $rates['quotes'][$this->config('sourceCurrency') . $currencyCode];
+        }
+
+        return $this->Number->currency($amount, $currencyCode);
+    }
+
+    /**
+     * Return the cached exchange rate data
+     *
+     * @return mixed
+     */
+    protected function _getRates()
+    {
+        return Cache::read('exchangeRateData', 'CurrencyExchange_ratesCache');
     }
 }

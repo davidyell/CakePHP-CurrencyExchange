@@ -69,11 +69,11 @@ class RatesShell extends Shell
         $this->out(__('<info>Attempting to fetch the latest exchange rate data..</info>'));
 
         if (Configure::read('currencyLayer.apikey') === null) {
-            $this->out(__("<error>Please configure your CurrencyLayer API key in your application.</error>"));
-            exit;
+            $this->out(__("<error>Please configure your CurrencyLayer API key in your application. Using the 'currencyLayer.apikey' config key.</error>"));
+            return;
         }
 
-        $http = new Client();
+        $http = $this->_getClient();
 
         /* @var \Cake\Network\Http\Response $response */
         $response = $http->get($this->ratesApi, [
@@ -86,13 +86,13 @@ class RatesShell extends Shell
 
             $rates = json_decode($response->body, true);
 
-            if ($rates['success'] === false) {
-                $this->out(__("<error>[" . $rates['error']->code . ':' . $rates['error']->type . '] ' . $rates['error']->info . "</error>"));
-                exit;
+            if (isset($rates['success']) && $rates['success'] == false) {
+                $this->out(__("<error>[" . $rates['error']['code'] . ':' . $rates['error']['type'] . '] ' . $rates['error']['info'] . "</error>"));
+                return;
             }
 
             if (is_array($rates) && !empty($rates)) {
-                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange_ratesCache')) {
+                if ($this->_saveRates($rates)) {
                     $this->out(__("Exchange rate cache data updated."));
                     $this->out(__("New timestamp is `" . date('d M Y H:i:s', $rates['timestamp']) . "`"));
                 } else {
@@ -102,5 +102,26 @@ class RatesShell extends Shell
         } else {
             $this->out(__("<error>Response received `{$response->code}`</error>"));
         }
+    }
+
+    /**
+     * Wrapper method for testing
+     *
+     * @return \Cake\Network\Http\Client
+     */
+    protected function _getClient()
+    {
+        return new Client();
+    }
+
+    /**
+     * Save the current exchange rate data into cache
+     *
+     * @param array $rates Array return
+     * @return bool
+     */
+    protected function _saveRates($rates)
+    {
+        return Cache::write('exchangeRateData', $rates, 'CurrencyExchange_ratesCache');
     }
 }

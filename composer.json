@@ -18,5 +18,10 @@
       "psr-4": {
         "CurrencyExchange\\": "src"
       }
-    }
+    },
+    "autoload-dev": {
+      "psr-4": {
+        "CurrencyExchange\\Tests\\": "tests"
+      }
+  }
 }

@@ -41,7 +41,7 @@ class RatesShell extends Shell {
     /**
      * Update the local cache with data from the remote api
      *
-     * @return array|bool
+     * @return void
      */
     public function update()
     {

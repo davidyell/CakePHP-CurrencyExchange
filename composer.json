@@ -11,6 +11,7 @@
         }
     ],
     "require": {
+      "php": ">=5.4.16",
       "cakephp/cakephp": "~3.0"
     },
     "autoload": {

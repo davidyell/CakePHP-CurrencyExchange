@@ -1,8 +1,8 @@
 {
     "name": "ukwm/currency-exchange",
-    "description": "A CakePHP 2 helper for displaying prices in various currencies",
+    "description": "A CakePHP 3 helper for displaying prices in various currencies",
     "type": "cakephp-plugin",
-    "keywords": ["cakephp", "currency", "exchange", "exchange rates", "prices"],
+    "keywords": ["cakephp3", "currency", "exchange", "exchange rates", "prices"],
     "homepage": "https://bitbucket.org/ukwm/campaigns-plugins-currencyexchange/overview",
     "authors": [
         {
@@ -10,9 +10,12 @@
             "email": "dyell@ukwebmedia.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-      "composer/installers": "*",
-      "cakephp/cakephp": ">= 2.4"
+      "cakephp/cakephp": "~3.0"
+    },
+    "autoload": {
+      "psr-4": {
+        "CurrencyExchange\\": "src"
+      }
     }
 }

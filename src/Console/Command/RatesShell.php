@@ -1,5 +1,7 @@
 <?php
 
+namespace CurrencyExchange\Console\Command;
+
 /**
  * @category CurrencyExchange
  * @package RatesShell.php
@@ -9,9 +11,11 @@
  *
  */
 
-App::uses('HttpSocket', 'Network/Http');
+use Cake\Cache\Cache;
+use Cake\Console\Shell;
+use Cake\Network\Http\Client;
 
-class RatesShell extends AppShell {
+class RatesShell extends Shell {
 
     protected $ratesApi = 'http://www.getexchangerates.com/api/latest.json';
 
@@ -34,17 +38,18 @@ class RatesShell extends AppShell {
         return $parser;
     }
 
-/**
- * Update the local cache with data from the remote api
- *
- * @return array|bool
- */
-    public function update() {
+    /**
+     * Update the local cache with data from the remote api
+     *
+     * @return array|bool
+     */
+    public function update()
+    {
         $this->out(__('<info>Attempting to fetch the latest exchange rate data..</info>'));
 
-        $http = new HttpSocket();
+        $http = new Client();
 
-        /* @var HttpSocketResponse $response */
+        /* @var \Cake\Network\Http\Response $response */
         $response = $http->get($this->ratesApi, ['base' => $this->args[0]]);
 
         if ($response->isOk()) {

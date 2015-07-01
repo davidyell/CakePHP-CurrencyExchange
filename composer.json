@@ -1,5 +1,5 @@
 {
-    "name": "ukwm/currency-exchange",
+    "name": "davidyell/currency-exchange",
     "description": "A CakePHP 3 helper for displaying prices in various currencies",
     "type": "cakephp-plugin",
     "keywords": ["cakephp3", "currency", "exchange", "exchange rates", "prices"],

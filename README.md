@@ -29,3 +29,7 @@ Instead you can set the shell to run on a cron as often as you need and it will 
 
 ## Updating the cache
 The frequency at which the cache is updated is controller by how often you chose to run the shell task. I'd recommend setting a cron job which runs once a week to update the cache.
+
+```bash
+bin/cake currency_exchange.rates update GBP
+```

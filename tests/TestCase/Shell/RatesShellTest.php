@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @category HotelNowVegas 
+ * @category HotelNowVegas
  * @package RatesShellTest.php
- * 
+ *
  * @author David Yell <neon1024@gmail.com>
  * @when 01/07/15
  *
@@ -17,7 +17,8 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use CurrencyExchange\Shell\RatesShell;
 
-class TestOutput extends ConsoleOutput {
+class TestOutput extends ConsoleOutput
+{
     public $output = '';
 
     protected function _write($message)
@@ -26,7 +27,8 @@ class TestOutput extends ConsoleOutput {
     }
 }
 
-class RatesShellTest extends \PHPUnit_Framework_TestCase {
+class RatesShellTest extends \PHPUnit_Framework_TestCase
+{
 
     public function setUp()
     {

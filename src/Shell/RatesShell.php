@@ -1,6 +1,6 @@
 <?php
 
-namespace CurrencyExchange\Console\Command;
+namespace CurrencyExchange\Shell;
 
 /**
  * @category CurrencyExchange
@@ -8,16 +8,16 @@ namespace CurrencyExchange\Console\Command;
  * 
  * @author David Yell <neon1024@gmail.com>
  * @when 26/03/15
- *
  */
 
 use Cake\Cache\Cache;
 use Cake\Console\Shell;
+use Cake\Core\Configure;
 use Cake\Network\Http\Client;
 
 class RatesShell extends Shell {
 
-    protected $ratesApi = 'http://www.getexchangerates.com/api/latest.json';
+    protected $ratesApi = 'http://apilayer.net/api/live';
 
     public function getOptionParser() {
         $parser = parent::getOptionParser();
@@ -47,21 +47,33 @@ class RatesShell extends Shell {
     {
         $this->out(__('<info>Attempting to fetch the latest exchange rate data..</info>'));
 
+        if (Configure::read('currencyLayer.apikey') === null) {
+            $this->out(__("<error>Please configure your CurrencyLayer API key in your application.</error>"));
+            exit;
+        }
+
         $http = new Client();
 
         /* @var \Cake\Network\Http\Response $response */
-        $response = $http->get($this->ratesApi, ['base' => $this->args[0]]);
+        $response = $http->get($this->ratesApi, [
+            'source' => $this->param('currency'),
+            'access_key' => Configure::read('currencyLayer.apikey')
+        ]);
 
         if ($response->isOk()) {
             $this->out(__("Response received `{$response->code}`"));
 
-            $json = json_decode($response->body);
-            $rates = (array)$json;
+            $rates = json_decode($response->body, true);
+
+            if ($rates['success'] === false) {
+                $this->out(__("<error>[" . $rates['error']->code . ':' . $rates['error']->type . '] ' . $rates['error']->info . "</error>"));
+                exit;
+            }
 
             if (is_array($rates) && !empty($rates)) {
-                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange.ratesCache')) {
+                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange_ratesCache')) {
                     $this->out(__("Exchange rate cache data updated."));
-                    $this->out(__("New timestamp is `" . date('d M Y H:i:s', (int)$rates['DateTime']) . "`"));
+                    $this->out(__("New timestamp is `" . date('d M Y H:i:s', $rates['timestamp']) . "`"));
                 } else {
                     $this->out(__("<error>Cache could not be updated.</error>"));
                 }

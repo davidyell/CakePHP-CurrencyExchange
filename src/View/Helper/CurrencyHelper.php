@@ -28,40 +28,20 @@ class CurrencyHelper extends Helper {
 	protected $exchangeRates;
 
     /**
-     * The remote api to grab exchange rate data from
-     *
-     * @var string
-     */
-    protected $ratesApi = 'http://www.getexchangerates.com/api/latest.json';
-
-    /**
      * The default settings for the helper
      *
      * @var array $settings Default configuration
      */
-    public $settings = [
+    public $_defaultConfig = [
+        'sourceCurrency' => 'USD',
         'targetCurrency' => 'GBP'
     ];
 
     /**
-     * Build the helper
-     *
-     * @param View $View
-     * @param array $settings
-     */
-    public function __construct(View $View, $settings = array())
-    {
-        parent::__construct($View, $settings);
-
-        $this->exchangeRates = $this->getRates();
-    }
-
-    /**
-     * Display the price in GBP
+     * Display the price in configured currency
      *
      * @param int $value
-     * @param string $currencyCode A three letter currency code
-     *        list of codes, http://en.wikipedia.org/wiki/ISO_4217#Active_codes
+     * @param string $currencyCode A three letter currency code list of codes, http://en.wikipedia.org/wiki/ISO_4217#Active_codes
      * @return string
      * @throws BadMethodCallException
      */
@@ -70,27 +50,18 @@ class CurrencyHelper extends Helper {
 		if (strlen($currencyCode) !== 3 || !is_string($currencyCode)) {
 			throw new BadMethodCallException('Please pass a valid three letter currency code, such as GBP or USD.');
 		}
+
+        $rates = Cache::read('exchangeRateData', 'CurrencyExchange_ratesCache');
+        if ($rates === false) {
+            return;
+        }
 		
 		if ($currencyCode === $this->settings['targetCurrency']) {
 			return;
 		}
 
-        if ($this->exchangeRates === false) {
-            return;
-        }
-
-		$amount = $value / $this->exchangeRates[$currencyCode];
+		$amount = $value / $rates['quotes']->{$this->config('sourceCurrency') . $currencyCode};
 		
-		return $this->Number->currency($amount, $this->settings['targetCurrency']);
-	}
-
-    /**
-     * Load exchange rates from either the cache or the remote api
-     *
-     * @return array
-     */
-	protected function getRates()
-    {
-        return Cache::read('exchangeRateData', 'CurrencyExchange.ratesCache');
+		return $this->Number->currency($amount, $this->config('targetCurrency'));
 	}
 }

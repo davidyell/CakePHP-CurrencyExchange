@@ -6,9 +6,16 @@ It will cache the result and check the response before invalidating the cache to
 ## Requirements
 * CakePHP 3.x
 * PHP 5.4.16+
+* Currencylayer.com api account
 
 ## Installation
 You can require it with `composer require "davidyell/currency_exchange:3.x-dev"`
+
+Set your Currency Layer API key.
+* https://github.com/apilayer/currencylayer-API
+* https://currencylayer.com/documentation
+
+`Configure::write('currencyLayer.apikey', "YourApiKeyGoesHere");`
 
 ## Helper
 The helper is provided to do the front-end conversion when displaying prices in different currencies. The helper takes a number of options to configure it's behaviour.

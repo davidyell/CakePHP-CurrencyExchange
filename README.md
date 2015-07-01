@@ -3,6 +3,8 @@ A helper for CakePHP 3 which will display a currency in a different currency usi
 
 It will cache the result and check the response before invalidating the cache to ensure that your site always serves some currency data, even if it's a little stale. The data is cached for a year and updated using a shell.
 
+[![Build Status](https://travis-ci.org/davidyell/CakePHP-CurrencyExchange.svg?branch=3.x)](https://travis-ci.org/davidyell/CakePHP-CurrencyExchange)
+
 ## Requirements
 * CakePHP 3.x
 * PHP 5.4.16+

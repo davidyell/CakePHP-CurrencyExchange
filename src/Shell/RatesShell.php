@@ -5,7 +5,7 @@ namespace CurrencyExchange\Shell;
 /**
  * @category CurrencyExchange
  * @package RatesShell.php
- * 
+ *
  * @author David Yell <neon1024@gmail.com>
  * @when 26/03/15
  */
@@ -15,11 +15,22 @@ use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Network\Http\Client;
 
-class RatesShell extends Shell {
-
+class RatesShell extends Shell
+{
+    /**
+     * Api endpoint url
+     *
+     * @var string
+     */
     protected $ratesApi = 'http://apilayer.net/api/live';
 
-    public function getOptionParser() {
+    /**
+     * Output the available console commands and options
+     *
+     * @return \Cake\Console\ConsoleOptionParser
+     */
+    public function getOptionParser()
+    {
         $parser = parent::getOptionParser();
 
         $parser->addSubcommand('update', [
@@ -36,6 +47,16 @@ class RatesShell extends Shell {
         ]);
 
         return $parser;
+    }
+
+    /**
+     * Output the help options when using the shell without a command
+     *
+     * @return void
+     */
+    public function main()
+    {
+        $this->out($this->OptionParser->help());
     }
 
     /**

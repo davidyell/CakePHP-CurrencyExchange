@@ -13,7 +13,7 @@ App::uses('HttpSocket', 'Network/Http');
 
 class RatesShell extends AppShell {
 
-    protected $ratesApi = 'http://www.getexchangerates.com/api/latest.json';
+    protected $ratesApi = 'http://apilayer.net/api/live';
 
     public function getOptionParser() {
         $parser = parent::getOptionParser();
@@ -21,17 +21,15 @@ class RatesShell extends AppShell {
         $parser->addSubcommand('update', [
             'help' => __('Try and update the Exchange Rate cached data from the remote api.'),
             'parser' => [
-                'description' => [__('Attempt to fetch updated data from the remote api and cache it locally.')],
-                'arguments' => [
-                    'currency' => [
-                        'help' => __('The target currency code, such as GBP or USD.'),
-                        'required' => true
-                    ],
-                ]
+                'description' => [__('Attempt to fetch updated USD data from the remote api and cache it locally.')],
             ]
         ]);
 
         return $parser;
+    }
+
+    public function main() {
+        $this->out($this->OptionParser->help());
     }
 
 /**
@@ -42,21 +40,32 @@ class RatesShell extends AppShell {
     public function update() {
         $this->out(__('<info>Attempting to fetch the latest exchange rate data..</info>'));
 
+        if (Configure::read('currencyLayer.apikey') === null) {
+            $this->out(__("<error>Please configure your CurrencyLayer API key in your application. Using the 'currencyLayer.apikey' config key.</error>"));
+            return;
+        }
+
         $http = new HttpSocket();
 
         /* @var HttpSocketResponse $response */
-        $response = $http->get($this->ratesApi, ['base' => $this->args[0]]);
+        $response = $http->get($this->ratesApi, [
+            'access_key' => Configure::read('currencyLayer.apikey')
+        ]);
 
         if ($response->isOk()) {
             $this->out(__("Response received `{$response->code}`"));
 
-            $json = json_decode($response->body);
-            $rates = (array)$json;
+            $rates = json_decode($response->body, true);
+
+            if (isset($rates['success']) && $rates['success'] == false) {
+                $this->out(__("<error>[" . $rates['error']['code'] . ':' . $rates['error']['type'] . '] ' . $rates['error']['info'] . "</error>"));
+                return;
+            }
 
             if (is_array($rates) && !empty($rates)) {
-                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange.ratesCache')) {
+                if (Cache::write('exchangeRateData', $rates, 'CurrencyExchange_ratesCache')) {
                     $this->out(__("Exchange rate cache data updated."));
-                    $this->out(__("New timestamp is `" . date('d M Y H:i:s', (int)$rates['DateTime']) . "`"));
+                    $this->out(__("New timestamp is `" . date('d M Y H:i:s', (int)$rates['timestamp']) . "`"));
                 } else {
                     $this->out(__("<error>Cache could not be updated.</error>"));
                 }

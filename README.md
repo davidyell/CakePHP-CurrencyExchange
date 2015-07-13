@@ -13,6 +13,8 @@ There are two main installation methods depending on your setup. However, whiche
 CakePlugin::load('CurrencyExchange', ['bootstrap' => true]);
 ```
 
+Make sure to include your CurrencyLayer API key in your `config/bootstrap.php` using `Configure::write('currencyLayer.apikey', "YourApiKeyGoesHere");`
+
 ### Manual plugin installation
 Download the zip and unzip it to the `app/Plugin/CurrencyExchange` folder.
 
@@ -28,10 +30,11 @@ When you are adding the helper to your `$helpers` array in your controller, you 
 ```php
 // app/Controller/AppController.php
     public $helpers = [
-        'CurrencyExchange.Currency' => [
-            'targetCurrency' => 'GBP', // The currency code to convert into
-        ]
+        'CurrencyExchange.Currency'
     ];
+    
+// Examples/index.ctp
+echo $this->Currency->display($price, 'GBP');
 ```
 
 ## Shell

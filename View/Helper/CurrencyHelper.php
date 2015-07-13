@@ -16,63 +16,48 @@ class CurrencyHelper extends AppHelper {
 	public $helpers = ['Number'];
 
 /**
- * Store the processed exchange rate data
- *
- * @var array
- */
-	protected $exchangeRates;
-
-/**
- * The remote api to grab exchange rate data from
- *
- * @var string
- */
-    protected $ratesApi = 'http://www.getexchangerates.com/api/latest.json';
-
-/**
  * The default settings for the helper
  *
  * @var array $settings Default configuration
  */
     public $settings = [
-        'targetCurrency' => 'GBP'
+        'sourceCurrency' => 'USD'
     ];
 
 /**
- * Build the helper
+ * Display the price in configured currency
  *
- * @param View $View
- * @param array $settings
- */
-    public function __construct(View $View, $settings = array()) {
-        parent::__construct($View, $settings);
-
-        $this->exchangeRates = $this->getRates();
-    }
-/**
- * Display the price in GBP
- * 
- * @param int $value
- * @param string $currencyCode A three letter currency code
- *        list of codes, http://en.wikipedia.org/wiki/ISO_4217#Active_codes
- * @return string
+ * Due to the free API not allowing changes to the source currency, non-USD source currencies are converted to USD
+ * and then to the target currency.
+ *
+ * @param int $value The monetary amount
+ * @param string $currencyCode A three letter currency code list of codes, http://en.wikipedia.org/wiki/ISO_4217#Active_codes
+ * @return void|string
+ * @throws InvalidArgumentException
  */
 	public function display($value, $currencyCode) {
 		if (strlen($currencyCode) !== 3 || !is_string($currencyCode)) {
-			throw new BadMethodCallException('Please pass a valid three letter currency code, such as GBP or USD.');
+			throw new InvalidArgumentException('Please pass a valid three letter currency code, such as GBP or USD.');
 		}
-		
-		if ($currencyCode === $this->settings['targetCurrency']) {
+		$rates = $this->_getRates();
+		if ($rates === false) {
 			return;
 		}
 
-        if ($this->exchangeRates === false) {
-            return;
-        }
-
-		$amount = $value / $this->exchangeRates[$currencyCode];
-		
-		return $this->Number->currency($amount, $this->settings['targetCurrency']);
+		if ($currencyCode === $this->settings['sourceCurrency']) {
+			return;
+		}
+		if ($this->settings['sourceCurrency'] !== 'USD') {
+			$usdValue = $value / $rates['quotes']['USD' . $this->settings['sourceCurrency']];
+			if ($currencyCode === 'USD') {
+				$amount = $usdValue;
+			} else {
+				$amount = $usdValue * $rates['quotes']['USD' . $currencyCode];
+			}
+		} else {
+			$amount = $value * $rates['quotes'][$this->settings['sourceCurrency'] . $currencyCode];
+		}
+		return $this->Number->currency($amount, $currencyCode);
 	}
 
 /**
@@ -80,7 +65,7 @@ class CurrencyHelper extends AppHelper {
  *
  * @return array
  */
-	protected function getRates() {
-        return Cache::read('exchangeRateData', 'CurrencyExchange.ratesCache');
+	protected function _getRates() {
+        return Cache::read('exchangeRateData', 'CurrencyExchange_ratesCache');
 	}
 }

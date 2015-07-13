@@ -3,7 +3,7 @@
 /**
  * Create a cache config to store the exchange rate data
  */
-Cache::config('CurrencyExchange.ratesCache', array(
+Cache::config('CurrencyExchange_ratesCache', [
     'engine' => 'File',
     'path' => TMP . 'cache' . DS,
     'duration' => '+1 year',
@@ -11,4 +11,4 @@ Cache::config('CurrencyExchange.ratesCache', array(
     'prefix' => 'currency_exchange_',
     'persistent' => true,
     'compress' => false
-));
+]);

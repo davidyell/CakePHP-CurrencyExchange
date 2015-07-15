@@ -20,7 +20,7 @@ Set your Currency Layer API key.
 `Configure::write('currencyLayer.apikey', "YourApiKeyGoesHere");`
 
 ## Helper
-The helper is provided to do the front-end conversion when displaying prices in different currencies. The helper takes a number of options to configure it's behaviour.
+The helper is provided to do the front-end conversion when displaying prices in different currencies. The helper takes a number of options to configure its behaviour.
 
 ### Helper configuration
 When you are adding the helper to your `$helpers` array in your controller, you can pass an array of options. The defaults 

@@ -25,6 +25,12 @@ class CurrencyHelper extends AppHelper {
 		'displayDefault' => true
     ];
 
+	public function __construct(View $View, $settings = array())
+	{
+		$settings = array_merge($this->settings, $settings);
+		parent::__construct($View, $settings);
+	}
+
 /**
  * Display the price in configured currency
  *
@@ -47,12 +53,13 @@ class CurrencyHelper extends AppHelper {
 			return;
 		}
 
-		if ($currencyCode === $this->settings['sourceCurrency'] && $this->settings['displayDefault']) {
-			return $this->Number->currency($value, $currencyCode);
-		} else {
-			return;
+		if ($currencyCode === $this->settings['sourceCurrency']) {
+			if ($this->settings['displayDefault'] === true) {
+				return $this->Number->currency($value, $currencyCode);
+			} else {
+				return;
+			}
 		}
-
 
 		if ($this->settings['sourceCurrency'] !== 'USD') {
 			$usdValue = $value / $rates['quotes']['USD' . $this->settings['sourceCurrency']];

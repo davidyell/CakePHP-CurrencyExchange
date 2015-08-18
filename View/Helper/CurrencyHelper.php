@@ -21,7 +21,8 @@ class CurrencyHelper extends AppHelper {
  * @var array $settings Default configuration
  */
     public $settings = [
-        'sourceCurrency' => 'USD'
+        'sourceCurrency' => 'USD',
+		'displayDefault' => true
     ];
 
 /**
@@ -37,16 +38,22 @@ class CurrencyHelper extends AppHelper {
  */
 	public function display($value, $currencyCode) {
 		if (strlen($currencyCode) !== 3 || !is_string($currencyCode)) {
-			throw new InvalidArgumentException('Please pass a valid three letter currency code, such as GBP or USD.');
+			throw new InvalidArgumentException('Please pass a valid three letter currency code, such as GBP or USD. Instead of ' . $currencyCode);
 		}
+		$currencyCode = strtoupper($currencyCode);
+
 		$rates = $this->_getRates();
 		if ($rates === false) {
 			return;
 		}
 
-		if ($currencyCode === $this->settings['sourceCurrency']) {
+		if ($currencyCode === $this->settings['sourceCurrency'] && $this->settings['displayDefault']) {
+			return $this->Number->currency($value, $currencyCode);
+		} else {
 			return;
 		}
+
+
 		if ($this->settings['sourceCurrency'] !== 'USD') {
 			$usdValue = $value / $rates['quotes']['USD' . $this->settings['sourceCurrency']];
 			if ($currencyCode === 'USD') {

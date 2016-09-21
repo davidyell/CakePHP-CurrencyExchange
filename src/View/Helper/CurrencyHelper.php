@@ -51,10 +51,6 @@ class CurrencyHelper extends Helper
             return;
         }
         
-        if ($currencyCode === $this->config('sourceCurrency')) {
-            return;
-        }
-
         if ($this->config('sourceCurrency') !== 'USD') {
             $usdValue = $value / $rates['quotes']['USD' . $this->config('sourceCurrency')];
             if ($currencyCode === 'USD') {

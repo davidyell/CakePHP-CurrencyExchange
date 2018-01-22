@@ -48,11 +48,6 @@ class CurrencyHelper extends AppHelper {
 		}
 		$currencyCode = strtoupper($currencyCode);
 
-		$rates = $this->_getRates();
-		if ($rates === false) {
-			return;
-		}
-
 		if ($currencyCode === $this->settings['sourceCurrency']) {
 			if ($this->settings['displayDefault'] === true) {
 				return $this->Number->currency($value, $currencyCode);
@@ -60,6 +55,11 @@ class CurrencyHelper extends AppHelper {
 				return;
 			}
 		}
+
+        $rates = $this->_getRates();
+        if ($rates === false) {
+            return;
+        }
 
 		if ($this->settings['sourceCurrency'] !== 'USD') {
 			$usdValue = $value / $rates['quotes']['USD' . $this->settings['sourceCurrency']];
